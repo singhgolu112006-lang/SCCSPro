@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Software Component Catalogue System</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d45;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --accent4: #f59e0b;
+    --text: #e2e8f0;
+    --text-muted: #64748b;
+    --danger: #ef4444;
+    --radius: 10px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Syne',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    position:fixed; left:0; top:0; bottom:0; width:240px;
+    background:var(--surface); border-right:1px solid var(--border);
+    display:flex; flex-direction:column; z-index:100;
+    padding:0 0 16px;
+  }
+  .logo {
+    padding:20px 20px 16px;
+    border-bottom:1px solid var(--border);
+    font-size:13px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--accent);
+  }
+  .logo span { display:block; font-size:10px; color:var(--text-muted); margin-top:2px; font-weight:400; }
+  .nav-group { padding:16px 12px 0; }
+  .nav-label { font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--text-muted); padding:0 8px; margin-bottom:6px; }
+  .nav-item {
+    display:flex; align-items:center; gap:10px; padding:9px 12px;
+    border-radius:7px; cursor:pointer; font-size:13px; font-weight:600;
+    color:var(--text-muted); transition:.15s;
+    margin-bottom:2px;
+  }
+  .nav-item:hover { background:var(--surface2); color:var(--text); }
+  .nav-item.active { background:rgba(0,212,255,.1); color:var(--accent); }
+  .nav-item .icon { font-size:15px; width:18px; text-align:center; }
+
+  /* ── MAIN ── */
+  .main { margin-left:240px; min-height:100vh; padding:28px 32px; }
+
+  /* ── TOPBAR ── */
+  .topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; }
+  .page-title { font-size:22px; font-weight:800; }
+  .page-title span { color:var(--accent); }
+  .topbar-actions { display:flex; gap:10px; align-items:center; }
+  .btn {
+    padding:8px 16px; border-radius:7px; font-family:'Syne',sans-serif;
+    font-size:13px; font-weight:700; cursor:pointer; border:none; transition:.15s;
+  }
+  .btn-primary { background:var(--accent); color:#0a0e1a; }
+  .btn-primary:hover { filter:brightness(1.1); }
+  .btn-ghost { background:transparent; color:var(--text-muted); border:1px solid var(--border); }
+  .btn-ghost:hover { background:var(--surface2); color:var(--text); }
+  .btn-danger { background:var(--danger); color:#fff; }
+
+  /* ── SECTIONS ── */
+  .section { display:none; }
+  .section.active { display:block; }
+
+  /* ── CARDS ── */
+  .card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius); padding:20px; margin-bottom:18px;
+  }
+  .card-title { font-size:15px; font-weight:700; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+  .card-title .dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
+  .dot-blue { background:var(--accent); }
+  .dot-purple { background:var(--accent2); }
+  .dot-green { background:var(--accent3); }
+  .dot-amber { background:var(--accent4); }
+
+  /* ── STATS ROW ── */
+  .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px; }
+  .stat-card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius); padding:18px 20px;
+  }
+  .stat-label { font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); margin-bottom:8px; }
+  .stat-value { font-size:28px; font-weight:800; font-family:'Space Mono',monospace; }
+  .stat-sub { font-size:11px; color:var(--text-muted); margin-top:4px; }
+  .stat-v1 .stat-value { color:var(--accent); }
+  .stat-v2 .stat-value { color:var(--accent2); }
+  .stat-v3 .stat-value { color:var(--accent3); }
+  .stat-v4 .stat-value { color:var(--accent4); }
+
+  /* ── TABLE ── */
+  .tbl-wrap { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th { text-align:left; padding:10px 14px; font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--text-muted); border-bottom:1px solid var(--border); }
+  td { padding:11px 14px; border-bottom:1px solid var(--border); vertical-align:middle; }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:rgba(255,255,255,.02); }
+  .badge {
+    display:inline-block; padding:3px 8px; border-radius:20px;
+    font-size:11px; font-weight:700; letter-spacing:.04em;
+  }
+  .badge-blue { background:rgba(0,212,255,.12); color:var(--accent); }
+  .badge-green { background:rgba(16,185,129,.12); color:var(--accent3); }
+  .badge-purple { background:rgba(124,58,237,.15); color:#a78bfa; }
+  .badge-amber { background:rgba(245,158,11,.12); color:var(--accent4); }
+  .badge-red { background:rgba(239,68,68,.12); color:#f87171; }
+  .badge-gray { background:rgba(100,116,139,.15); color:var(--text-muted); }
+
+  /* ── FORM ── */
+  .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .form-grid.cols3 { grid-template-columns:1fr 1fr 1fr; }
+  .form-full { grid-column:1/-1; }
+  .form-group { display:flex; flex-direction:column; gap:5px; }
+  label { font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); font-weight:700; }
+  input, select, textarea {
+    background:var(--bg); border:1px solid var(--border); border-radius:7px;
+    padding:9px 12px; font-family:'Syne',sans-serif; font-size:13px;
+    color:var(--text); transition:.15s; resize:vertical;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(0,212,255,.1);
+  }
+  select option { background:var(--surface); }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,.7);
+    z-index:200; align-items:center; justify-content:center;
+  }
+  .modal-overlay.open { display:flex; }
+  .modal {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; padding:24px; width:560px; max-width:95vw;
+    max-height:90vh; overflow-y:auto;
+  }
+  .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+  .modal-title { font-size:16px; font-weight:800; }
+  .close-btn { background:none; border:none; color:var(--text-muted); font-size:20px; cursor:pointer; padding:4px; }
+  .close-btn:hover { color:var(--text); }
+
+  /* ── SEARCH BAR ── */
+  .search-bar {
+    display:flex; gap:10px; margin-bottom:18px; align-items:center;
+  }
+  .search-input-wrap { position:relative; flex:1; }
+  .search-input-wrap input { width:100%; padding-left:36px; }
+  .search-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:14px; }
+
+  /* ── DIAGRAM SECTION ── */
+  .diagram-tabs { display:flex; gap:6px; margin-bottom:20px; }
+  .dtab {
+    padding:8px 16px; border-radius:6px; font-size:12px; font-weight:700;
+    cursor:pointer; border:1px solid var(--border); background:transparent; color:var(--text-muted);
+    transition:.15s; font-family:'Syne',sans-serif;
+  }
+  .dtab.active { background:var(--accent); color:#0a0e1a; border-color:var(--accent); }
+  .diagram-box {
+    background:var(--bg); border:1px solid var(--border); border-radius:var(--radius);
+    padding:20px; min-height:420px; position:relative; overflow:hidden;
+  }
+  .diagram-panel { display:none; }
+  .diagram-panel.active { display:block; }
+
+  /* ── SVG DIAGRAMS ── */
+  svg.diagram { width:100%; font-family:'Space Mono',monospace; }
+  .node rect, .node ellipse { stroke-width:1.5; }
+  .node text { font-size:11px; fill:#e2e8f0; }
+  .edge-label { font-size:10px; fill:var(--text-muted); }
+
+  /* ── REQUIREMENT ITEMS ── */
+  .req-item {
+    background:var(--bg); border:1px solid var(--border); border-radius:8px;
+    padding:14px 16px; margin-bottom:10px; display:flex; align-items:flex-start; gap:12px;
+  }
+  .req-id { font-family:'Space Mono',monospace; font-size:11px; color:var(--accent); min-width:50px; margin-top:2px; }
+  .req-text { flex:1; font-size:13px; }
+  .req-text strong { display:block; margin-bottom:3px; font-size:13px; }
+  .req-text span { font-size:12px; color:var(--text-muted); }
+  .req-priority { font-size:10px; font-weight:700; padding:2px 7px; border-radius:4px; }
+  .p-high { background:rgba(239,68,68,.15); color:#f87171; }
+  .p-med { background:rgba(245,158,11,.15); color:var(--accent4); }
+  .p-low { background:rgba(16,185,129,.15); color:var(--accent3); }
+
+  /* ── ACTION BTNS in table ── */
+  .action-btns { display:flex; gap:6px; }
+  .action-btn {
+    padding:4px 10px; border-radius:5px; font-size:11px; font-weight:700;
+    cursor:pointer; border:none; font-family:'Syne',sans-serif; transition:.15s;
+  }
+  .ab-edit { background:rgba(0,212,255,.1); color:var(--accent); }
+  .ab-edit:hover { background:rgba(0,212,255,.2); }
+  .ab-del { background:rgba(239,68,68,.1); color:#f87171; }
+  .ab-del:hover { background:rgba(239,68,68,.2); }
+  .ab-view { background:rgba(124,58,237,.1); color:#a78bfa; }
+  .ab-view:hover { background:rgba(124,58,237,.2); }
+
+  /* ── TOAST ── */
+  #toast {
+    position:fixed; bottom:24px; right:24px; background:var(--accent3); color:#0a0e1a;
+    padding:10px 18px; border-radius:8px; font-size:13px; font-weight:700;
+    transform:translateY(80px); opacity:0; transition:.3s; z-index:999;
+  }
+  #toast.show { transform:translateY(0); opacity:1; }
+
+  /* ── DETAIL VIEW ── */
+  .detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .detail-item { background:var(--bg); border-radius:7px; padding:12px 14px; }
+  .detail-key { font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); margin-bottom:4px; }
+  .detail-val { font-size:13px; font-weight:600; }
+
+  /* ── ER DIAGRAM ── */
+  .er-box {
+    display:inline-block; background:var(--surface2); border:2px solid;
+    border-radius:8px; min-width:160px;
+  }
+  .er-title { padding:8px 14px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; border-bottom:1px solid; }
+  .er-attr { padding:5px 14px; font-size:11px; color:var(--text-muted); font-family:'Space Mono',monospace; }
+  .er-pk { color:var(--accent4); font-weight:700; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width:5px; height:5px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+  @media(max-width:900px){
+    .sidebar { width:60px; }
+    .main { margin-left:60px; padding:18px; }
+    .nav-item span, .logo span, .nav-label { display:none; }
+    .stats-row { grid-template-columns:1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="logo">SCC System<span>Component Catalogue v1.0</span></div>
+
+  <div class="nav-group">
+    <div class="nav-label">Overview</div>
+    <div class="nav-item active" onclick="navigate('dashboard',this)">
+      <span class="icon">📊</span><span>Dashboard</span>
+    </div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-label">Catalogue</div>
+    <div class="nav-item" onclick="navigate('components',this)">
+      <span class="icon">🧩</span><span>Components</span>
+    </div>
+    <div class="nav-item" onclick="navigate('categories',this)">
+      <span class="icon">🗂️</span><span>Categories</span>
+    </div>
+    <div class="nav-item" onclick="navigate('vendors',this)">
+      <span class="icon">🏢</span><span>Vendors</span>
+    </div>
+    <div class="nav-item" onclick="navigate('versions',this)">
+      <span class="icon">🔖</span><span>Versions</span>
+    </div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-label">Project Docs</div>
+    <div class="nav-item" onclick="navigate('requirements',this)">
+      <span class="icon">📋</span><span>Requirements</span>
+    </div>
+    <div class="nav-item" onclick="navigate('diagrams',this)">
+      <span class="icon">📐</span><span>UML / DFD / ER</span>
+    </div>
+    <div class="nav-item" onclick="navigate('analysis',this)">
+      <span class="icon">🔍</span><span>Analysis</span>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <!-- ──────────── DASHBOARD ──────────── -->
+  <section id="dashboard" class="section active">
+    <div class="topbar">
+      <div class="page-title">Dashboard <span>Overview</span></div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost" onclick="navigate('components',document.querySelector('[onclick*=components]'))">+ Add Component</button>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card stat-v1">
+        <div class="stat-label">Total Components</div>
+        <div class="stat-value" id="stat-total">12</div>
+        <div class="stat-sub">Across all categories</div>
+      </div>
+      <div class="stat-card stat-v3">
+        <div class="stat-label">Active</div>
+        <div class="stat-value" id="stat-active">9</div>
+        <div class="stat-sub">In production</div>
+      </div>
+      <div class="stat-card stat-v2">
+        <div class="stat-label">Categories</div>
+        <div class="stat-value">5</div>
+        <div class="stat-sub">Component types</div>
+      </div>
+      <div class="stat-card stat-v4">
+        <div class="stat-label">Vendors</div>
+        <div class="stat-value">4</div>
+        <div class="stat-sub">Registered suppliers</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+      <div class="card">
+        <div class="card-title"><span class="dot dot-blue"></span> Recent Components</div>
+        <table>
+          <thead><tr><th>Name</th><th>Category</th><th>Status</th></tr></thead>
+          <tbody id="recent-table"></tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot dot-green"></span> Category Distribution</div>
+        <div id="cat-dist"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:0">
+      <div class="card-title"><span class="dot dot-amber"></span> System Info</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;font-size:13px;">
+        <div style="padding:10px;background:var(--bg);border-radius:7px;">
+          <div style="color:var(--text-muted);font-size:11px;margin-bottom:4px;">PROJECT</div>
+          Software Component Cataloguing System
+        </div>
+        <div style="padding:10px;background:var(--bg);border-radius:7px;">
+          <div style="color:var(--text-muted);font-size:11px;margin-bottom:4px;">VERSION</div>
+          1.0.0 — April 2026
+        </div>
+        <div style="padding:10px;background:var(--bg);border-radius:7px;">
+          <div style="color:var(--text-muted);font-size:11px;margin-bottom:4px;">TECH STACK</div>
+          HTML · CSS · JavaScript (Vanilla)
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ──────────── COMPONENTS ──────────── -->
+  <section id="components" class="section">
+    <div class="topbar">
+      <div class="page-title">Components <span>Catalogue</span></div>
+      <div class="topbar-actions">
+        <button class="btn btn-primary" onclick="openAddModal()">+ Add Component</button>
+      </div>
+    </div>
+
+    <div class="search-bar">
+      <div class="search-input-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="comp-search" placeholder="Search components…" oninput="renderComponents()">
+      </div>
+      <select id="cat-filter" onchange="renderComponents()" style="width:180px;">
+        <option value="">All Categories</option>
+        <option>Frontend</option>
+        <option>Backend</option>
+        <option>Database</option>
+        <option>Security</option>
+        <option>DevOps</option>
+      </select>
+      <select id="status-filter" onchange="renderComponents()" style="width:160px;">
+        <option value="">All Status</option>
+        <option>Active</option>
+        <option>Deprecated</option>
+        <option>Beta</option>
+        <option>Archived</option>
+      </select>
+    </div>
+
+    <div class="card">
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th><th>Name</th><th>Category</th><th>Version</th>
+              <th>Vendor</th><th>Status</th><th>License</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="comp-table"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ──────────── CATEGORIES ──────────── -->
+  <section id="categories" class="section">
+    <div class="topbar">
+      <div class="page-title">Component <span>Categories</span></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;">
+      <div class="card" style="border-color:rgba(0,212,255,.25)">
+        <div style="font-size:28px;margin-bottom:10px;">⚡</div>
+        <div style="font-weight:700;margin-bottom:6px;">Frontend</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">UI components, frameworks, styling libraries</div>
+        <div class="badge badge-blue" id="cnt-Frontend">0 components</div>
+      </div>
+      <div class="card" style="border-color:rgba(124,58,237,.25)">
+        <div style="font-size:28px;margin-bottom:10px;">🖧</div>
+        <div style="font-weight:700;margin-bottom:6px;">Backend</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">APIs, services, server-side frameworks</div>
+        <div class="badge badge-purple" id="cnt-Backend">0 components</div>
+      </div>
+      <div class="card" style="border-color:rgba(16,185,129,.25)">
+        <div style="font-size:28px;margin-bottom:10px;">🗄️</div>
+        <div style="font-weight:700;margin-bottom:6px;">Database</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Data storage, ORM, migration tools</div>
+        <div class="badge badge-green" id="cnt-Database">0 components</div>
+      </div>
+      <div class="card" style="border-color:rgba(245,158,11,.25)">
+        <div style="font-size:28px;margin-bottom:10px;">🔐</div>
+        <div style="font-weight:700;margin-bottom:6px;">Security</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Auth, encryption, scanning tools</div>
+        <div class="badge badge-amber" id="cnt-Security">0 components</div>
+      </div>
+      <div class="card" style="border-color:rgba(239,68,68,.25)">
+        <div style="font-size:28px;margin-bottom:10px;">🚀</div>
+        <div style="font-weight:700;margin-bottom:6px;">DevOps</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">CI/CD, containerisation, monitoring</div>
+        <div class="badge badge-red" id="cnt-DevOps">0 components</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ──────────── VENDORS ──────────── -->
+  <section id="vendors" class="section">
+    <div class="topbar"><div class="page-title">Registered <span>Vendors</span></div></div>
+    <div class="card">
+      <table>
+        <thead><tr><th>Vendor</th><th>Contact</th><th>Website</th><th>Components</th><th>Type</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Meta Open Source</strong></td><td>oss@fb.com</td><td>react.dev</td><td><span class="badge badge-blue">3</span></td><td><span class="badge badge-green">Open Source</span></td></tr>
+          <tr><td><strong>HashiCorp</strong></td><td>support@hashicorp.com</td><td>hashicorp.com</td><td><span class="badge badge-blue">2</span></td><td><span class="badge badge-amber">Commercial</span></td></tr>
+          <tr><td><strong>MongoDB Inc.</strong></td><td>support@mongodb.com</td><td>mongodb.com</td><td><span class="badge badge-blue">2</span></td><td><span class="badge badge-green">Open Source</span></td></tr>
+          <tr><td><strong>Docker Inc.</strong></td><td>support@docker.com</td><td>docker.com</td><td><span class="badge badge-blue">3</span></td><td><span class="badge badge-green">Open Source</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ──────────── VERSIONS ──────────── -->
+  <section id="versions" class="section">
+    <div class="topbar"><div class="page-title">Version <span>History</span></div></div>
+    <div class="card">
+      <div class="card-title"><span class="dot dot-blue"></span> Component Version Log</div>
+      <div id="ver-list"></div>
+    </div>
+  </section>
+
+  <!-- ──────────── REQUIREMENTS ──────────── -->
+  <section id="requirements" class="section">
+    <div class="topbar"><div class="page-title">Requirements <span>Specification</span></div></div>
+
+    <div class="card">
+      <div class="card-title"><span class="dot dot-blue"></span> Functional Requirements</div>
+      <div class="req-item"><div class="req-id">FR-01</div><div class="req-text"><strong>Component Registration</strong><span>The system shall allow users to add new software components with name, version, category, vendor, license, and description.</span></div><span class="req-priority p-high">HIGH</span></div>
+      <div class="req-item"><div class="req-id">FR-02</div><div class="req-text"><strong>Component Search & Filter</strong><span>Users shall be able to search components by name and filter by category, status, and vendor.</span></div><span class="req-priority p-high">HIGH</span></div>
+      <div class="req-item"><div class="req-id">FR-03</div><div class="req-text"><strong>Component Update</strong><span>Authorised users can edit component details including version upgrades and status changes.</span></div><span class="req-priority p-high">HIGH</span></div>
+      <div class="req-item"><div class="req-id">FR-04</div><div class="req-text"><strong>Component Deletion</strong><span>Users can delete/archive components that are no longer in use.</span></div><span class="req-priority p-med">MEDIUM</span></div>
+      <div class="req-item"><div class="req-id">FR-05</div><div class="req-text"><strong>Category Management</strong><span>System shall support creating and managing component categories.</span></div><span class="req-priority p-med">MEDIUM</span></div>
+      <div class="req-item"><div class="req-id">FR-06</div><div class="req-text"><strong>Vendor Tracking</strong><span>The system shall maintain a registry of vendors associated with components.</span></div><span class="req-priority p-med">MEDIUM</span></div>
+      <div class="req-item"><div class="req-id">FR-07</div><div class="req-text"><strong>Version History</strong><span>System shall track all version changes for each component with timestamps.</span></div><span class="req-priority p-high">HIGH</span></div>
+      <div class="req-item"><div class="req-id">FR-08</div><div class="req-text"><strong>Dashboard Analytics</strong><span>System shall display statistics on total, active, deprecated components per category.</span></div><span class="req-priority p-low">LOW</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="dot dot-purple"></span> Non-Functional Requirements</div>
+      <div class="req-item"><div class="req-id">NFR-01</div><div class="req-text"><strong>Performance</strong><span>Search results shall be returned within 1 second for up to 10,000 components.</span></div><span class="req-priority p-high">HIGH</span></div>
+      <div class="req-item"><div class="req-id">NFR-02</div><div class="req-text"><strong>Usability</strong><span>The UI shall follow modern design standards and be operable without prior training.</span></div><span class="req-priority p-med">MEDIUM</span></div>
+      <div class="req-item"><div class="req-id">NFR-03</div><div class="req-text"><strong>Security</strong><span>All data modifications shall require user authentication and authorisation.</span></div><span class="req-priority p-high">HIGH</span></div>
+      <div class="req-item"><div class="req-id">NFR-04</div><div class="req-text"><strong>Scalability</strong><span>System shall support up to 50,000 component records without degradation.</span></div><span class="req-priority p-med">MEDIUM</span></div>
+      <div class="req-item"><div class="req-id">NFR-05</div><div class="req-text"><strong>Availability</strong><span>System shall maintain 99.5% uptime during business hours.</span></div><span class="req-priority p-low">LOW</span></div>
+    </div>
+  </section>
+
+  <!-- ──────────── DIAGRAMS ──────────── -->
+  <section id="diagrams" class="section">
+    <div class="topbar"><div class="page-title">System <span>Diagrams</span></div></div>
+
+    <div class="diagram-tabs">
+      <button class="dtab active" onclick="switchDiag('uml-uc',this)">UML Use Case</button>
+      <button class="dtab" onclick="switchDiag('uml-class',this)">UML Class</button>
+      <button class="dtab" onclick="switchDiag('dfd0',this)">DFD Level 0</button>
+      <button class="dtab" onclick="switchDiag('dfd1',this)">DFD Level 1</button>
+      <button class="dtab" onclick="switchDiag('er',this)">ER Diagram</button>
+    </div>
+
+    <div class="diagram-box">
+
+      <!-- USE CASE -->
+      <div id="uml-uc" class="diagram-panel active">
+        <svg class="diagram" viewBox="0 0 780 440" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- System boundary -->
+          <rect x="140" y="20" width="500" height="400" rx="12" fill="none" stroke="#1e2d45" stroke-width="1.5"/>
+          <text x="390" y="14" text-anchor="middle" fill="#64748b" font-size="11">«system» Software Component Catalogue</text>
+
+          <!-- Actors -->
+          <!-- Admin -->
+          <ellipse cx="60" cy="100" rx="18" ry="18" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
+          <line x1="60" y1="118" x2="60" y2="160" stroke="#00d4ff" stroke-width="1.5"/>
+          <line x1="30" y1="140" x2="90" y2="140" stroke="#00d4ff" stroke-width="1.5"/>
+          <line x1="60" y1="160" x2="35" y2="185" stroke="#00d4ff" stroke-width="1.5"/>
+          <line x1="60" y1="160" x2="85" y2="185" stroke="#00d4ff" stroke-width="1.5"/>
+          <text x="60" y="200" text-anchor="middle" fill="#00d4ff" font-size="11">Admin</text>
+
+          <!-- User -->
+          <ellipse cx="60" cy="310" rx="18" ry="18" fill="none" stroke="#10b981" stroke-width="1.5"/>
+          <line x1="60" y1="328" x2="60" y2="370" stroke="#10b981" stroke-width="1.5"/>
+          <line x1="30" y1="350" x2="90" y2="350" stroke="#10b981" stroke-width="1.5"/>
+          <line x1="60" y1="370" x2="35" y2="395" stroke="#10b981" stroke-width="1.5"/>
+          <line x1="60" y1="370" x2="85" y2="395" stroke="#10b981" stroke-width="1.5"/>
+          <text x="60" y="415" text-anchor="middle" fill="#10b981" font-size="11">User</text>
+
+          <!-- Use Cases -->
+          <ellipse cx="310" cy="70" rx="120" ry="24" fill="#111827" stroke="#00d4ff" stroke-width="1.3"/>
+          <text x="310" y="75" text-anchor="middle" fill="#e2e8f0" font-size="11">Add Component</text>
+
+          <ellipse cx="310" cy="135" rx="120" ry="24" fill="#111827" stroke="#7c3aed" stroke-width="1.3"/>
+          <text x="310" y="140" text-anchor="middle" fill="#e2e8f0" font-size="11">Edit / Delete Component</text>
+
+          <ellipse cx="310" cy="200" rx="120" ry="24" fill="#111827" stroke="#10b981" stroke-width="1.3"/>
+          <text x="310" y="205" text-anchor="middle" fill="#e2e8f0" font-size="11">Search Component</text>
+
+          <ellipse cx="310" cy="265" rx="120" ry="24" fill="#111827" stroke="#10b981" stroke-width="1.3"/>
+          <text x="310" y="270" text-anchor="middle" fill="#e2e8f0" font-size="11">View Component Details</text>
+
+          <ellipse cx="310" cy="330" rx="120" ry="24" fill="#111827" stroke="#10b981" stroke-width="1.3"/>
+          <text x="310" y="335" text-anchor="middle" fill="#e2e8f0" font-size="11">Filter by Category / Status</text>
+
+          <ellipse cx="310" cy="395" rx="120" ry="24" fill="#111827" stroke="#f59e0b" stroke-width="1.3"/>
+          <text x="310" y="400" text-anchor="middle" fill="#e2e8f0" font-size="11">View Dashboard</text>
+
+          <!-- Manage Categories / Vendors (right side) -->
+          <ellipse cx="560" cy="100" rx="120" ry="24" fill="#111827" stroke="#00d4ff" stroke-width="1.3"/>
+          <text x="560" y="105" text-anchor="middle" fill="#e2e8f0" font-size="11">Manage Categories</text>
+
+          <ellipse cx="560" cy="165" rx="120" ry="24" fill="#111827" stroke="#00d4ff" stroke-width="1.3"/>
+          <text x="560" y="170" text-anchor="middle" fill="#e2e8f0" font-size="11">Manage Vendors</text>
+
+          <ellipse cx="560" cy="230" rx="120" ry="24" fill="#111827" stroke="#f59e0b" stroke-width="1.3"/>
+          <text x="560" y="235" text-anchor="middle" fill="#e2e8f0" font-size="11">Generate Reports</text>
+
+          <!-- Connections Admin -> Use Cases -->
+          <line x1="78" y1="100" x2="190" y2="70" stroke="#00d4ff" stroke-width="1" stroke-dasharray="none"/>
+          <line x1="78" y1="110" x2="190" y2="135" stroke="#00d4ff" stroke-width="1"/>
+          <line x1="78" y1="105" x2="430" y2="100" stroke="#00d4ff" stroke-width="1"/>
+          <line x1="78" y1="108" x2="440" y2="165" stroke="#00d4ff" stroke-width="1"/>
+          <line x1="78" y1="112" x2="440" y2="230" stroke="#f59e0b" stroke-width="1"/>
+
+          <!-- Connections User -> Use Cases -->
+          <line x1="78" y1="310" x2="190" y2="200" stroke="#10b981" stroke-width="1"/>
+          <line x1="78" y1="315" x2="190" y2="265" stroke="#10b981" stroke-width="1"/>
+          <line x1="78" y1="320" x2="190" y2="330" stroke="#10b981" stroke-width="1"/>
+          <line x1="78" y1="325" x2="190" y2="395" stroke="#f59e0b" stroke-width="1"/>
+        </svg>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:8px;text-align:center;">Figure 1 — UML Use Case Diagram: Software Component Catalogue System</div>
+      </div>
+
+      <!-- CLASS DIAGRAM -->
+      <div id="uml-class" class="diagram-panel">
+        <svg class="diagram" viewBox="0 0 780 460" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Component class -->
+          <rect x="280" y="30" width="220" height="160" rx="6" fill="#111827" stroke="#00d4ff" stroke-width="1.5"/>
+          <rect x="280" y="30" width="220" height="32" rx="6" fill="rgba(0,212,255,.1)"/>
+          <rect x="280" y="56" width="220" height="2" fill="#1e2d45"/>
+          <text x="390" y="52" text-anchor="middle" fill="#00d4ff" font-size="12" font-weight="bold">Component</text>
+          <text x="290" y="76" fill="#e2e8f0" font-size="10">- componentId: String</text>
+          <text x="290" y="92" fill="#e2e8f0" font-size="10">- name: String</text>
+          <text x="290" y="108" fill="#e2e8f0" font-size="10">- version: String</text>
+          <text x="290" y="124" fill="#e2e8f0" font-size="10">- description: String</text>
+          <text x="290" y="140" fill="#e2e8f0" font-size="10">- status: Enum</text>
+          <text x="290" y="156" fill="#e2e8f0" font-size="10">- license: String</text>
+          <rect x="280" y="158" width="220" height="2" fill="#1e2d45"/>
+          <text x="290" y="176" fill="#64748b" font-size="10">+ addComponent(): void</text>
+          <text x="290" y="190" fill="#64748b" font-size="10">+ updateComponent(): void</text>
+
+          <!-- Category class -->
+          <rect x="30" y="280" width="190" height="130" rx="6" fill="#111827" stroke="#7c3aed" stroke-width="1.5"/>
+          <rect x="30" y="280" width="190" height="32" rx="6" fill="rgba(124,58,237,.1)"/>
+          <text x="125" y="302" text-anchor="middle" fill="#a78bfa" font-size="12" font-weight="bold">Category</text>
+          <text x="40" y="328" fill="#e2e8f0" font-size="10">- categoryId: String</text>
+          <text x="40" y="344" fill="#e2e8f0" font-size="10">- categoryName: String</text>
+          <text x="40" y="360" fill="#e2e8f0" font-size="10">- description: String</text>
+          <rect x="30" y="364" width="190" height="2" fill="#1e2d45"/>
+          <text x="40" y="380" fill="#64748b" font-size="10">+ getComponents(): List</text>
+          <text x="40" y="396" fill="#64748b" font-size="10">+ getCategoryCount(): int</text>
+
+          <!-- Vendor class -->
+          <rect x="560" y="280" width="190" height="130" rx="6" fill="#111827" stroke="#10b981" stroke-width="1.5"/>
+          <rect x="560" y="280" width="190" height="32" rx="6" fill="rgba(16,185,129,.1)"/>
+          <text x="655" y="302" text-anchor="middle" fill="#10b981" font-size="12" font-weight="bold">Vendor</text>
+          <text x="570" y="328" fill="#e2e8f0" font-size="10">- vendorId: String</text>
+          <text x="570" y="344" fill="#e2e8f0" font-size="10">- vendorName: String</text>
+          <text x="570" y="360" fill="#e2e8f0" font-size="10">- contactEmail: String</text>
+          <rect x="560" y="364" width="190" height="2" fill="#1e2d45"/>
+          <text x="570" y="380" fill="#64748b" font-size="10">+ getComponents(): List</text>
+          <text x="570" y="396" fill="#64748b" font-size="10">+ updateContact(): void</text>
+
+          <!-- Version class -->
+          <rect x="280" y="280" width="220" height="130" rx="6" fill="#111827" stroke="#f59e0b" stroke-width="1.5"/>
+          <rect x="280" y="280" width="220" height="32" rx="6" fill="rgba(245,158,11,.1)"/>
+          <text x="390" y="302" text-anchor="middle" fill="#f59e0b" font-size="12" font-weight="bold">Version</text>
+          <text x="290" y="328" fill="#e2e8f0" font-size="10">- versionId: String</text>
+          <text x="290" y="344" fill="#e2e8f0" font-size="10">- versionNumber: String</text>
+          <text x="290" y="360" fill="#e2e8f0" font-size="10">- releaseDate: Date</text>
+          <rect x="280" y="364" width="220" height="2" fill="#1e2d45"/>
+          <text x="290" y="380" fill="#64748b" font-size="10">+ getLatestVersion(): String</text>
+          <text x="290" y="396" fill="#64748b" font-size="10">+ logChange(): void</text>
+
+          <!-- Associations -->
+          <!-- Component -> Category (belongsTo) -->
+          <line x1="280" y1="160" x2="125" y2="280" stroke="#7c3aed" stroke-width="1.2" stroke-dasharray="5,3"/>
+          <text x="175" y="228" fill="#64748b" font-size="9">belongs to</text>
+          <text x="175" y="240" fill="#64748b" font-size="9">* ────── 1</text>
+
+          <!-- Component -> Vendor (suppliedBy) -->
+          <line x1="500" y1="160" x2="655" y2="280" stroke="#10b981" stroke-width="1.2" stroke-dasharray="5,3"/>
+          <text x="560" y="228" fill="#64748b" font-size="9">supplied by</text>
+          <text x="560" y="240" fill="#64748b" font-size="9">* ──── 1</text>
+
+          <!-- Component -> Version (has) -->
+          <line x1="390" y1="192" x2="390" y2="280" stroke="#f59e0b" stroke-width="1.2"/>
+          <text x="396" y="242" fill="#64748b" font-size="9">has 1..*</text>
+        </svg>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:8px;text-align:center;">Figure 2 — UML Class Diagram: Component Catalogue Domain Model</div>
+      </div>
+
+      <!-- DFD LEVEL 0 -->
+      <div id="dfd0" class="diagram-panel">
+        <svg class="diagram" viewBox="0 0 780 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- External entities -->
+          <rect x="30" y="130" width="110" height="50" rx="4" fill="#111827" stroke="#00d4ff" stroke-width="1.5"/>
+          <text x="85" y="151" text-anchor="middle" fill="#00d4ff" font-size="11">Admin /</text>
+          <text x="85" y="167" text-anchor="middle" fill="#00d4ff" font-size="11">User</text>
+
+          <rect x="640" y="60" width="120" height="45" rx="4" fill="#111827" stroke="#10b981" stroke-width="1.5"/>
+          <text x="700" y="87" text-anchor="middle" fill="#10b981" font-size="11">Component DB</text>
+
+          <rect x="640" y="250" width="120" height="45" rx="4" fill="#111827" stroke="#f59e0b" stroke-width="1.5"/>
+          <text x="700" y="277" text-anchor="middle" fill="#f59e0b" font-size="11">Vendor / Category</text>
+
+          <!-- Central process -->
+          <ellipse cx="380" cy="180" rx="140" ry="80" fill="rgba(124,58,237,.08)" stroke="#7c3aed" stroke-width="2"/>
+          <text x="380" y="170" text-anchor="middle" fill="#a78bfa" font-size="13" font-weight="bold">SCC System</text>
+          <text x="380" y="188" text-anchor="middle" fill="#64748b" font-size="10">(Process 0)</text>
+
+          <!-- Flows -->
+          <line x1="140" y1="155" x2="240" y2="165" stroke="#00d4ff" stroke-width="1.5" marker-end="url(#arrow-b)"/>
+          <text x="175" y="148" fill="#64748b" font-size="10">Component Data</text>
+
+          <line x1="240" y1="175" x2="140" y2="180" stroke="#00d4ff" stroke-width="1.5" marker-end="url(#arrow-b)"/>
+          <text x="155" y="195" fill="#64748b" font-size="10">Search Results</text>
+
+          <line x1="520" y1="155" x2="640" y2="90" stroke="#10b981" stroke-width="1.5" marker-end="url(#arrow-g)"/>
+          <text x="560" y="115" fill="#64748b" font-size="10">Store / Retrieve</text>
+
+          <line x1="520" y1="195" x2="640" y2="265" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arrow-a)"/>
+          <text x="556" y="248" fill="#64748b" font-size="10">Lookup Data</text>
+
+          <defs>
+            <marker id="arrow-b" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#00d4ff"/>
+            </marker>
+            <marker id="arrow-g" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#10b981"/>
+            </marker>
+            <marker id="arrow-a" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#f59e0b"/>
+            </marker>
+            <marker id="arrow-p" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a78bfa"/>
+            </marker>
+          </defs>
+        </svg>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:8px;text-align:center;">Figure 3 — Data Flow Diagram (Level 0) — Context Diagram</div>
+      </div>
+
+      <!-- DFD LEVEL 1 -->
+      <div id="dfd1" class="diagram-panel">
+        <svg class="diagram" viewBox="0 0 780 440" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Processes -->
+          <ellipse cx="180" cy="100" rx="90" ry="38" fill="rgba(0,212,255,.07)" stroke="#00d4ff" stroke-width="1.5"/>
+          <text x="180" y="96" text-anchor="middle" fill="#00d4ff" font-size="11" font-weight="bold">P1</text>
+          <text x="180" y="112" text-anchor="middle" fill="#e2e8f0" font-size="10">Manage Components</text>
+
+          <ellipse cx="500" cy="100" rx="90" ry="38" fill="rgba(124,58,237,.07)" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="500" y="96" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="bold">P2</text>
+          <text x="500" y="112" text-anchor="middle" fill="#e2e8f0" font-size="10">Search & Filter</text>
+
+          <ellipse cx="180" cy="270" rx="90" ry="38" fill="rgba(16,185,129,.07)" stroke="#10b981" stroke-width="1.5"/>
+          <text x="180" y="266" text-anchor="middle" fill="#10b981" font-size="11" font-weight="bold">P3</text>
+          <text x="180" y="282" text-anchor="middle" fill="#e2e8f0" font-size="10">Manage Categories</text>
+
+          <ellipse cx="500" cy="270" rx="90" ry="38" fill="rgba(245,158,11,.07)" stroke="#f59e0b" stroke-width="1.5"/>
+          <text x="500" y="266" text-anchor="middle" fill="#f59e0b" font-size="11" font-weight="bold">P4</text>
+          <text x="500" y="282" text-anchor="middle" fill="#e2e8f0" font-size="10">Version Tracking</text>
+
+          <ellipse cx="340" cy="400" rx="90" ry="32" fill="rgba(239,68,68,.07)" stroke="#ef4444" stroke-width="1.5"/>
+          <text x="340" y="396" text-anchor="middle" fill="#f87171" font-size="11" font-weight="bold">P5</text>
+          <text x="340" y="412" text-anchor="middle" fill="#e2e8f0" font-size="10">Generate Reports</text>
+
+          <!-- Data stores -->
+          <rect x="670" y="80" width="100" height="40" rx="0" fill="#111827" stroke="#10b981" stroke-width="1"/>
+          <line x1="670" y1="80" x2="670" y2="120" stroke="#10b981" stroke-width="1"/>
+          <line x1="770" y1="80" x2="770" y2="120" stroke="#10b981" stroke-width="1"/>
+          <text x="720" y="104" text-anchor="middle" fill="#10b981" font-size="10">D1: Components</text>
+
+          <rect x="670" y="250" width="100" height="40" rx="0" fill="#111827" stroke="#f59e0b" stroke-width="1"/>
+          <line x1="670" y1="250" x2="670" y2="290" stroke="#f59e0b" stroke-width="1"/>
+          <line x1="770" y1="250" x2="770" y2="290" stroke="#f59e0b" stroke-width="1"/>
+          <text x="720" y="274" text-anchor="middle" fill="#f59e0b" font-size="10">D2: Versions</text>
+
+          <!-- Actor -->
+          <rect x="10" y="170" width="80" height="40" rx="4" fill="#111827" stroke="#00d4ff" stroke-width="1.5"/>
+          <text x="50" y="194" text-anchor="middle" fill="#00d4ff" font-size="10">User/Admin</text>
+
+          <!-- Flow lines -->
+          <line x1="90" y1="183" x2="98" y2="115" stroke="#00d4ff" stroke-width="1" marker-end="url(#arrow-b)"/>
+          <line x1="90" y1="197" x2="98" y2="258" stroke="#10b981" stroke-width="1" marker-end="url(#arrow-g)"/>
+          <line x1="270" y1="100" x2="410" y2="100" stroke="#a78bfa" stroke-width="1" marker-end="url(#arrow-p)"/>
+          <text x="340" y="93" text-anchor="middle" fill="#64748b" font-size="9">Component Data</text>
+          <line x1="590" y1="100" x2="670" y2="100" stroke="#10b981" stroke-width="1" marker-end="url(#arrow-g)"/>
+          <line x1="590" y1="270" x2="670" y2="270" stroke="#f59e0b" stroke-width="1" marker-end="url(#arrow-a)"/>
+          <line x1="270" y1="270" x2="410" y2="270" stroke="#f59e0b" stroke-width="1" marker-end="url(#arrow-a)"/>
+          <line x1="340" y1="308" x2="340" y2="368" stroke="#f87171" stroke-width="1" marker-end="url(#arrow-b)"/>
+        </svg>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:8px;text-align:center;">Figure 4 — Data Flow Diagram (Level 1) — Decomposition of Processes</div>
+      </div>
+
+      <!-- ER DIAGRAM -->
+      <div id="er" class="diagram-panel">
+        <svg class="diagram" viewBox="0 0 780 440" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- COMPONENT entity -->
+          <rect x="270" y="30" width="240" height="175" rx="6" fill="#111827" stroke="#00d4ff" stroke-width="2"/>
+          <rect x="270" y="30" width="240" height="36" rx="6" fill="rgba(0,212,255,.1)"/>
+          <text x="390" y="54" text-anchor="middle" fill="#00d4ff" font-size="13" font-weight="bold">COMPONENT</text>
+          <text x="280" y="82" fill="#f59e0b" font-size="10" font-family="monospace">PK  componentId (VARCHAR)</text>
+          <line x1="280" y1="88" x2="500" y2="88" stroke="#1e2d45"/>
+          <text x="280" y="103" fill="#e2e8f0" font-size="10" font-family="monospace">    name (VARCHAR)</text>
+          <text x="280" y="118" fill="#e2e8f0" font-size="10" font-family="monospace">    version (VARCHAR)</text>
+          <text x="280" y="133" fill="#e2e8f0" font-size="10" font-family="monospace">    description (TEXT)</text>
+          <text x="280" y="148" fill="#e2e8f0" font-size="10" font-family="monospace">    status (ENUM)</text>
+          <text x="280" y="163" fill="#e2e8f0" font-size="10" font-family="monospace">    license (VARCHAR)</text>
+          <text x="280" y="178" fill="#a78bfa" font-size="10" font-family="monospace">FK  categoryId, vendorId</text>
+
+          <!-- CATEGORY entity -->
+          <rect x="30" y="280" width="200" height="130" rx="6" fill="#111827" stroke="#7c3aed" stroke-width="2"/>
+          <rect x="30" y="280" width="200" height="36" rx="6" fill="rgba(124,58,237,.1)"/>
+          <text x="130" y="304" text-anchor="middle" fill="#a78bfa" font-size="13" font-weight="bold">CATEGORY</text>
+          <text x="40" y="330" fill="#f59e0b" font-size="10" font-family="monospace">PK  categoryId</text>
+          <line x1="40" y1="336" x2="220" y2="336" stroke="#1e2d45"/>
+          <text x="40" y="352" fill="#e2e8f0" font-size="10" font-family="monospace">    categoryName</text>
+          <text x="40" y="368" fill="#e2e8f0" font-size="10" font-family="monospace">    description</text>
+          <text x="40" y="384" fill="#e2e8f0" font-size="10" font-family="monospace">    createdAt</text>
+
+          <!-- VENDOR entity -->
+          <rect x="550" y="280" width="200" height="130" rx="6" fill="#111827" stroke="#10b981" stroke-width="2"/>
+          <rect x="550" y="280" width="200" height="36" rx="6" fill="rgba(16,185,129,.1)"/>
+          <text x="650" y="304" text-anchor="middle" fill="#10b981" font-size="13" font-weight="bold">VENDOR</text>
+          <text x="560" y="330" fill="#f59e0b" font-size="10" font-family="monospace">PK  vendorId</text>
+          <line x1="560" y1="336" x2="740" y2="336" stroke="#1e2d45"/>
+          <text x="560" y="352" fill="#e2e8f0" font-size="10" font-family="monospace">    vendorName</text>
+          <text x="560" y="368" fill="#e2e8f0" font-size="10" font-family="monospace">    contactEmail</text>
+          <text x="560" y="384" fill="#e2e8f0" font-size="10" font-family="monospace">    website</text>
+
+          <!-- VERSION entity -->
+          <rect x="270" y="280" width="240" height="130" rx="6" fill="#111827" stroke="#f59e0b" stroke-width="2"/>
+          <rect x="270" y="280" width="240" height="36" rx="6" fill="rgba(245,158,11,.1)"/>
+          <text x="390" y="304" text-anchor="middle" fill="#f59e0b" font-size="13" font-weight="bold">VERSION</text>
+          <text x="280" y="330" fill="#f59e0b" font-size="10" font-family="monospace">PK  versionId</text>
+          <line x1="280" y1="336" x2="500" y2="336" stroke="#1e2d45"/>
+          <text x="280" y="352" fill="#a78bfa" font-size="10" font-family="monospace">FK  componentId</text>
+          <text x="280" y="368" fill="#e2e8f0" font-size="10" font-family="monospace">    versionNumber</text>
+          <text x="280" y="384" fill="#e2e8f0" font-size="10" font-family="monospace">    releaseDate</text>
+          <text x="280" y="400" fill="#e2e8f0" font-size="10" font-family="monospace">    changeLog</text>
+
+          <!-- Relationship lines -->
+          <!-- Component - Category (many-to-one) -->
+          <line x1="270" y1="170" x2="130" y2="280" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="165" y="233" fill="#a78bfa" font-size="10">M</text>
+          <text x="120" y="273" fill="#a78bfa" font-size="10">1</text>
+          <text x="160" y="248" fill="#64748b" font-size="9">belongs to</text>
+
+          <!-- Component - Vendor (many-to-one) -->
+          <line x1="510" y1="170" x2="650" y2="280" stroke="#10b981" stroke-width="1.5"/>
+          <text x="555" y="233" fill="#10b981" font-size="10">M</text>
+          <text x="655" y="273" fill="#10b981" font-size="10">1</text>
+          <text x="556" y="248" fill="#64748b" font-size="9">supplied by</text>
+
+          <!-- Component - Version (one-to-many) -->
+          <line x1="390" y1="205" x2="390" y2="280" stroke="#f59e0b" stroke-width="1.5"/>
+          <text x="397" y="225" fill="#f59e0b" font-size="10">1</text>
+          <text x="397" y="273" fill="#f59e0b" font-size="10">N</text>
+          <text x="400" y="247" fill="#64748b" font-size="9">has</text>
+        </svg>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:8px;text-align:center;">Figure 5 — Entity Relationship Diagram (Crow's Foot Notation)</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ──────────── ANALYSIS ──────────── -->
+  <section id="analysis" class="section">
+    <div class="topbar"><div class="page-title">Requirement <span>Analysis</span></div></div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+      <div class="card">
+        <div class="card-title"><span class="dot dot-blue"></span> Feasibility Analysis</div>
+        <div style="font-size:13px;line-height:1.8;color:var(--text);">
+          <p style="margin-bottom:10px;"><strong style="color:var(--accent);">Technical Feasibility:</strong> The system is built with HTML/CSS/JS, requiring no specialised infrastructure. Standard CRUD operations on a relational or document database are sufficient.</p>
+          <p style="margin-bottom:10px;"><strong style="color:var(--accent2);">Operational Feasibility:</strong> The system targets IT teams and developers who are familiar with component registries. Minimal training is required.</p>
+          <p><strong style="color:var(--accent3);">Economic Feasibility:</strong> Development cost is low using open-source tools. Maintenance is straightforward with modular design.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot dot-green"></span> Risk Analysis</div>
+        <table>
+          <thead><tr><th>Risk</th><th>Impact</th><th>Mitigation</th></tr></thead>
+          <tbody>
+            <tr><td>Data Loss</td><td><span class="badge badge-red">High</span></td><td>Regular backups</td></tr>
+            <tr><td>Unauthorised Access</td><td><span class="badge badge-red">High</span></td><td>Auth + RBAC</td></tr>
+            <tr><td>Scope Creep</td><td><span class="badge badge-amber">Medium</span></td><td>Frozen requirements</td></tr>
+            <tr><td>Performance</td><td><span class="badge badge-amber">Medium</span></td><td>Indexed DB queries</td></tr>
+            <tr><td>Tech Obsolescence</td><td><span class="badge badge-green">Low</span></td><td>Modular architecture</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="dot dot-amber"></span> Technology Stack</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;font-size:13px;">
+        <div style="padding:12px;background:var(--bg);border-radius:8px;border:1px solid var(--border);">
+          <div style="color:var(--accent);font-size:11px;font-weight:700;margin-bottom:6px;">FRONTEND</div>
+          HTML5, CSS3, JavaScript ES6+, Syne + Space Mono fonts
+        </div>
+        <div style="padding:12px;background:var(--bg);border-radius:8px;border:1px solid var(--border);">
+          <div style="color:var(--accent2);font-size:11px;font-weight:700;margin-bottom:6px;">BACKEND</div>
+          Node.js / Express.js REST API, JWT Authentication
+        </div>
+        <div style="padding:12px;background:var(--bg);border-radius:8px;border:1px solid var(--border);">
+          <div style="color:var(--accent3);font-size:11px;font-weight:700;margin-bottom:6px;">DATABASE</div>
+          MongoDB (NoSQL) or PostgreSQL (Relational) with ORM
+        </div>
+        <div style="padding:12px;background:var(--bg);border-radius:8px;border:1px solid var(--border);">
+          <div style="color:var(--accent4);font-size:11px;font-weight:700;margin-bottom:6px;">DEVOPS</div>
+          Docker, GitHub Actions CI/CD, Nginx reverse proxy
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="dot dot-purple"></span> SDLC Model — Agile Iterative</div>
+      <div style="display:flex;gap:0;overflow-x:auto;padding-bottom:6px;">
+        <div style="text-align:center;min-width:120px;padding:16px 8px;background:rgba(0,212,255,.07);border-radius:8px 0 0 8px;border:1px solid rgba(0,212,255,.2);">
+          <div style="font-size:20px;margin-bottom:6px;">📋</div>
+          <div style="font-size:12px;font-weight:700;">Requirements</div>
+          <div style="font-size:10px;color:var(--text-muted);">Gathering & Analysis</div>
+        </div>
+        <div style="text-align:center;min-width:120px;padding:16px 8px;background:rgba(124,58,237,.07);border:1px solid rgba(124,58,237,.2);border-left:none;">
+          <div style="font-size:20px;margin-bottom:6px;">📐</div>
+          <div style="font-size:12px;font-weight:700;">Design</div>
+          <div style="font-size:10px;color:var(--text-muted);">UML, DFD, ER</div>
+        </div>
+        <div style="text-align:center;min-width:120px;padding:16px 8px;background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);border-left:none;">
+          <div style="font-size:20px;margin-bottom:6px;">💻</div>
+          <div style="font-size:12px;font-weight:700;">Implementation</div>
+          <div style="font-size:10px;color:var(--text-muted);">Coding sprints</div>
+        </div>
+        <div style="text-align:center;min-width:120px;padding:16px 8px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-left:none;">
+          <div style="font-size:20px;margin-bottom:6px;">🧪</div>
+          <div style="font-size:12px;font-weight:700;">Testing</div>
+          <div style="font-size:10px;color:var(--text-muted);">Unit & Integration</div>
+        </div>
+        <div style="text-align:center;min-width:120px;padding:16px 8px;background:rgba(239,68,68,.07);border-radius:0 8px 8px 0;border:1px solid rgba(239,68,68,.2);border-left:none;">
+          <div style="font-size:20px;margin-bottom:6px;">🚀</div>
+          <div style="font-size:12px;font-weight:700;">Deployment</div>
+          <div style="font-size:10px;color:var(--text-muted);">CI/CD & Monitoring</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ADD COMPONENT MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title-text">Add New Component</div>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><label>Component Name *</label><input id="f-name" placeholder="e.g. React Router"/></div>
+      <div class="form-group"><label>Version *</label><input id="f-version" placeholder="e.g. 6.4.0"/></div>
+      <div class="form-group"><label>Category *</label>
+        <select id="f-category">
+          <option value="">Select…</option>
+          <option>Frontend</option><option>Backend</option>
+          <option>Database</option><option>Security</option><option>DevOps</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Vendor</label><input id="f-vendor" placeholder="e.g. Meta Open Source"/></div>
+      <div class="form-group"><label>License</label>
+        <select id="f-license">
+          <option>MIT</option><option>Apache 2.0</option><option>GPL-3.0</option>
+          <option>BSD-3</option><option>Commercial</option><option>ISC</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Status</label>
+        <select id="f-status">
+          <option>Active</option><option>Beta</option>
+          <option>Deprecated</option><option>Archived</option>
+        </select>
+      </div>
+      <div class="form-group form-full"><label>Description</label>
+        <textarea id="f-desc" rows="3" placeholder="Brief description of this component…"></textarea>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px;">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveComponent()">Save Component</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW MODAL -->
+<div class="modal-overlay" id="viewModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="view-title">Component Details</div>
+      <button class="close-btn" onclick="document.getElementById('viewModal').classList.remove('open')">✕</button>
+    </div>
+    <div id="view-content"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast">✓ Saved successfully</div>
+
+<script>
+// ── DATA STORE ──
+let components = [
+  {id:'CMP001',name:'React',version:'18.2.0',category:'Frontend',vendor:'Meta Open Source',license:'MIT',status:'Active',desc:'A JavaScript library for building user interfaces.'},
+  {id:'CMP002',name:'Express.js',version:'4.18.2',category:'Backend',vendor:'OpenJS Foundation',license:'MIT',status:'Active',desc:'Fast, unopinionated, minimalist web framework for Node.js.'},
+  {id:'CMP003',name:'MongoDB',version:'7.0',category:'Database',vendor:'MongoDB Inc.',license:'SSPL',status:'Active',desc:'Source-available cross-platform document-oriented database.'},
+  {id:'CMP004',name:'Docker',version:'24.0',category:'DevOps',vendor:'Docker Inc.',license:'Apache 2.0',status:'Active',desc:'Platform for developing, shipping, and running applications in containers.'},
+  {id:'CMP005',name:'JWT Auth',version:'9.0.0',category:'Security',vendor:'Auth0',license:'MIT',status:'Active',desc:'JSON Web Token implementation for Node.js.'},
+  {id:'CMP006',name:'Tailwind CSS',version:'3.3.5',category:'Frontend',vendor:'Tailwind Labs',license:'MIT',status:'Active',desc:'Utility-first CSS framework for rapid UI development.'},
+  {id:'CMP007',name:'PostgreSQL',version:'16.1',category:'Database',vendor:'PostgreSQL Global Dev',license:'PostgreSQL',status:'Active',desc:'Powerful, open source object-relational database system.'},
+  {id:'CMP008',name:'Nginx',version:'1.25.3',category:'DevOps',vendor:'F5 Inc.',license:'BSD-2',status:'Active',desc:'Web server, reverse proxy, and load balancer.'},
+  {id:'CMP009',name:'Vue.js 2',version:'2.7.14',category:'Frontend',vendor:'Evan You',license:'MIT',status:'Deprecated',desc:'Progressive JavaScript framework (legacy version).'},
+  {id:'CMP010',name:'Passport.js',version:'0.6.0',category:'Security',vendor:'Jared Hanson',license:'MIT',status:'Beta',desc:'Simple, unobtrusive authentication middleware for Node.js.'},
+  {id:'CMP011',name:'Redis',version:'7.2',category:'Database',vendor:'Redis Ltd.',license:'BSD-3',status:'Active',desc:'In-memory data structure store used as cache and message broker.'},
+  {id:'CMP012',name:'GitHub Actions',version:'N/A',category:'DevOps',vendor:'GitHub (Microsoft)',license:'Commercial',status:'Active',desc:'CI/CD platform integrated directly into GitHub repositories.'},
+];
+
+let editingId = null;
+
+const catColors = {
+  Frontend:'badge-blue', Backend:'badge-purple', Database:'badge-green',
+  Security:'badge-amber', DevOps:'badge-red'
+};
+const statusColors = {
+  Active:'badge-green', Deprecated:'badge-red', Beta:'badge-amber', Archived:'badge-gray'
+};
+
+function getNextId(){
+  const nums = components.map(c=>parseInt(c.id.replace('CMP',''))).filter(Boolean);
+  return 'CMP'+String((Math.max(...nums,0)+1)).padStart(3,'0');
+}
+
+// ── NAVIGATION ──
+function navigate(id, el){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(el) el.classList.add('active');
+  if(id==='components') renderComponents();
+  if(id==='dashboard') renderDashboard();
+  if(id==='categories') renderCategories();
+  if(id==='versions') renderVersions();
+}
+
+// ── RENDER DASHBOARD ──
+function renderDashboard(){
+  document.getElementById('stat-total').textContent = components.length;
+  document.getElementById('stat-active').textContent = components.filter(c=>c.status==='Active').length;
+  const tbody = document.getElementById('recent-table');
+  tbody.innerHTML = components.slice(-5).reverse().map(c=>`
+    <tr>
+      <td><strong>${c.name}</strong></td>
+      <td><span class="badge ${catColors[c.category]||'badge-gray'}">${c.category}</span></td>
+      <td><span class="badge ${statusColors[c.status]||'badge-gray'}">${c.status}</span></td>
+    </tr>
+  `).join('');
+  // Category distribution
+  const cats = {};
+  components.forEach(c=>{ cats[c.category]=(cats[c.category]||0)+1; });
+  const total = components.length || 1;
+  document.getElementById('cat-dist').innerHTML = Object.entries(cats).map(([k,v])=>`
+    <div style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+        <span>${k}</span><span style="color:var(--text-muted);">${v}</span>
+      </div>
+      <div style="background:var(--border);border-radius:4px;height:6px;">
+        <div style="background:var(--accent);height:6px;border-radius:4px;width:${(v/total*100).toFixed(0)}%;transition:.4s;"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── RENDER COMPONENTS ──
+function renderComponents(){
+  const q = (document.getElementById('comp-search')?.value||'').toLowerCase();
+  const cat = document.getElementById('cat-filter')?.value||'';
+  const stat = document.getElementById('status-filter')?.value||'';
+  const filtered = components.filter(c=>
+    (!q || c.name.toLowerCase().includes(q) || c.id.toLowerCase().includes(q)) &&
+    (!cat || c.category===cat) &&
+    (!stat || c.status===stat)
+  );
+  document.getElementById('comp-table').innerHTML = filtered.length ? filtered.map(c=>`
+    <tr>
+      <td><span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--text-muted);">${c.id}</span></td>
+      <td><strong>${c.name}</strong></td>
+      <td><span class="badge ${catColors[c.category]||'badge-gray'}">${c.category}</span></td>
+      <td><span style="font-family:'Space Mono',monospace;font-size:12px;">${c.version}</span></td>
+      <td>${c.vendor}</td>
+      <td><span class="badge ${statusColors[c.status]||'badge-gray'}">${c.status}</span></td>
+      <td><span style="font-size:12px;color:var(--text-muted);">${c.license}</span></td>
+      <td><div class="action-btns">
+        <button class="action-btn ab-view" onclick="viewComponent('${c.id}')">View</button>
+        <button class="action-btn ab-edit" onclick="editComponent('${c.id}')">Edit</button>
+        <button class="action-btn ab-del" onclick="deleteComponent('${c.id}')">Delete</button>
+      </div></td>
+    </tr>
+  `).join('') : `<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:24px;">No components found.</td></tr>`;
+}
+
+// ── RENDER CATEGORIES ──
+function renderCategories(){
+  ['Frontend','Backend','Database','Security','DevOps'].forEach(cat=>{
+    const cnt = components.filter(c=>c.category===cat).length;
+    const el = document.getElementById('cnt-'+cat);
+    if(el) el.textContent = cnt+' component'+(cnt===1?'':'s');
+  });
+}
+
+// ── RENDER VERSIONS ──
+function renderVersions(){
+  document.getElementById('ver-list').innerHTML = components.map(c=>`
+    <div style="display:flex;align-items:center;gap:14px;padding:10px 12px;background:var(--bg);border-radius:7px;margin-bottom:8px;border:1px solid var(--border);">
+      <span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--text-muted);min-width:60px;">${c.id}</span>
+      <strong style="min-width:140px;">${c.name}</strong>
+      <span class="badge badge-amber" style="font-family:'Space Mono',monospace;">${c.version}</span>
+      <span class="badge ${catColors[c.category]||'badge-gray'}">${c.category}</span>
+      <span class="badge ${statusColors[c.status]||'badge-gray'}">${c.status}</span>
+    </div>
+  `).join('');
+}
+
+// ── MODAL LOGIC ──
+function openAddModal(){
+  editingId = null;
+  document.getElementById('modal-title-text').textContent = 'Add New Component';
+  ['name','version','vendor','desc'].forEach(f=>document.getElementById('f-'+f).value='');
+  document.getElementById('f-category').value='';
+  document.getElementById('f-license').value='MIT';
+  document.getElementById('f-status').value='Active';
+  document.getElementById('addModal').classList.add('open');
+}
+
+function closeModal(){
+  document.getElementById('addModal').classList.remove('open');
+  editingId = null;
+}
+
+function editComponent(id){
+  const c = components.find(x=>x.id===id);
+  if(!c) return;
+  editingId = id;
+  document.getElementById('modal-title-text').textContent = 'Edit Component';
+  document.getElementById('f-name').value = c.name;
+  document.getElementById('f-version').value = c.version;
+  document.getElementById('f-category').value = c.category;
+  document.getElementById('f-vendor').value = c.vendor;
+  document.getElementById('f-license').value = c.license;
+  document.getElementById('f-status').value = c.status;
+  document.getElementById('f-desc').value = c.desc;
+  document.getElementById('addModal').classList.add('open');
+}
+
+function saveComponent(){
+  const name = document.getElementById('f-name').value.trim();
+  const version = document.getElementById('f-version').value.trim();
+  const category = document.getElementById('f-category').value;
+  if(!name||!version||!category){ showToast('Please fill required fields','#ef4444'); return; }
+  const obj = {
+    id: editingId || getNextId(),
+    name, version, category,
+    vendor: document.getElementById('f-vendor').value.trim() || 'Unknown',
+    license: document.getElementById('f-license').value,
+    status: document.getElementById('f-status').value,
+    desc: document.getElementById('f-desc').value.trim(),
+  };
+  if(editingId){
+    const idx = components.findIndex(c=>c.id===editingId);
+    components[idx] = obj;
+    showToast('Component updated ✓');
+  } else {
+    components.push(obj);
+    showToast('Component added ✓');
+  }
+  closeModal();
+  renderComponents();
+  renderDashboard();
+  renderCategories();
+}
+
+function deleteComponent(id){
+  if(!confirm('Delete this component?')) return;
+  components = components.filter(c=>c.id!==id);
+  renderComponents();
+  renderDashboard();
+  renderCategories();
+  showToast('Component deleted','#ef4444');
+}
+
+function viewComponent(id){
+  const c = components.find(x=>x.id===id);
+  if(!c) return;
+  document.getElementById('view-title').textContent = c.name;
+  document.getElementById('view-content').innerHTML = `
+    <div class="detail-grid" style="margin-bottom:14px;">
+      <div class="detail-item"><div class="detail-key">Component ID</div><div class="detail-val" style="font-family:'Space Mono',monospace;">${c.id}</div></div>
+      <div class="detail-item"><div class="detail-key">Version</div><div class="detail-val" style="color:var(--accent4);font-family:'Space Mono',monospace;">${c.version}</div></div>
+      <div class="detail-item"><div class="detail-key">Category</div><div class="detail-val"><span class="badge ${catColors[c.category]||'badge-gray'}">${c.category}</span></div></div>
+      <div class="detail-item"><div class="detail-key">Status</div><div class="detail-val"><span class="badge ${statusColors[c.status]||'badge-gray'}">${c.status}</span></div></div>
+      <div class="detail-item"><div class="detail-key">Vendor</div><div class="detail-val">${c.vendor}</div></div>
+      <div class="detail-item"><div class="detail-key">License</div><div class="detail-val">${c.license}</div></div>
+    </div>
+    <div class="detail-item" style="grid-column:1/-1">
+      <div class="detail-key" style="margin-bottom:6px;">Description</div>
+      <div style="font-size:13px;color:var(--text);line-height:1.7;">${c.desc||'No description provided.'}</div>
+    </div>
+  `;
+  document.getElementById('viewModal').classList.add('open');
+}
+
+// ── DIAGRAM TABS ──
+function switchDiag(id, el){
+  document.querySelectorAll('.diagram-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.dtab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+
+// ── TOAST ──
+function showToast(msg, color){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = color || 'var(--accent3)';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+// ── INIT ──
+renderDashboard();
+renderComponents();
+</script>
+</body>
+</html>
